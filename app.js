@@ -55,18 +55,19 @@
     const links = el("div", "paper-links");
     paper.links.forEach(link => links.append(externalLink(link.url, "paper-link", t[link.label])));
     if (paper.state === "review") links.append(el("span", "status", paper.detail[lang]));
-    body.append(links);
+    if (links.childElementCount) body.append(links);
     article.append(mark, body);
     return article;
   }
   function renderPublications() {
     const list = document.getElementById("publication-list");
     list.replaceChildren();
-    const states = filter === "all" ? ["published", "review"] : [filter];
+    const stateHeadings = { published: "groupPublished", accepted: "groupAccepted", review: "groupReview" };
+    const states = filter === "all" ? Object.keys(stateHeadings) : filter === "published" ? ["published", "accepted"] : [filter];
     states.forEach(state => {
       const papers = data.publications.filter(p => p.state === state);
       if (!papers.length) return;
-      const heading = data.translations[lang][state === "published" ? "groupPublished" : "groupReview"];
+      const heading = data.translations[lang][stateHeadings[state]];
       list.append(el("h3", "paper-group-label", heading));
       papers.forEach(p => list.append(renderPaper(p)));
     });
